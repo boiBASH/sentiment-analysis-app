@@ -1,6 +1,6 @@
 # 📝 Sentiment Analysis using Machine Learning & Transformers
 
-This project performs **sentiment analysis** on customer feedback using **Machine Learning (ML) models** and a **Transformer-based model (DistilBERT)**. The trained models are deployed using **Streamlit** and **Gradio** for easy user interaction.
+This project performs **sentiment analysis** on customer feedback using **Machine Learning (ML) models** and a **Transformer-based model (DistilBERT)**. The trained models are deployed using **Streamlit** for easy user interaction.
 
 ---
 
@@ -26,8 +26,8 @@ This project involves:
 ---
 
 ## 📊 Dataset
-- The dataset contains **3.5 million** customer reviews labeled as **Positive (1)** or **Negative (0)**.
-- It is split into **train (80%)**, **validation (10%)**, and **test (10%)**.
+- The train dataset contains **3.5 million** customer reviews labeled as **Positive (1)** or **Negative (0)**. It was split to  **train (90%)** and **validation (10%)**
+- The test dataset contains **400 000** customer reviews labeled as **Positive (1)** or **Negative (0)**
 
 ---
 
