@@ -1,6 +1,7 @@
 import streamlit as st
 import joblib
 import pandas as pd
+import xgboost as xgb  # ✅ Import XGBoost for DMatrix conversion
 
 st.set_page_config(page_title="Sentiment Analysis", page_icon="💬", layout="wide")
 
@@ -31,7 +32,7 @@ vectorizer = load_vectorizer()
 # ✅ Check if models and vectorizer are loaded properly
 if not models or vectorizer is None:
     st.error("❌ Unable to load models or vectorizer. Please check file paths.")
-    st.stop()  # Stop execution if models are not loaded
+    st.stop()
 
 # ✅ Header with Centered Title
 st.markdown(
@@ -93,18 +94,22 @@ if st.button("🚀 Analyze Sentiment"):
         model = models[selected_model]
         
         try:
-            # Check if model supports probability prediction
+            # ✅ XGBoost Fix: Convert sparse matrix to DMatrix
+            if selected_model == "XGBoost":
+                input_vector = xgb.DMatrix(input_vector)
+
+            # ✅ Check if model supports probability prediction
             if hasattr(model, "predict_proba"):
                 prediction_prob = model.predict_proba(input_vector)[0]  # Get probability scores
                 confidence = max(prediction_prob) * 100  # Convert to percentage
             else:
                 confidence = "N/A (No Probability Available)"
 
-            # Get prediction
+            # ✅ Get prediction
             prediction = model.predict(input_vector)[0]
             sentiment = "😊 Positive" if prediction == 1 else "😡 Negative"
 
-            # Display Result
+            # ✅ Display Result
             st.markdown(
                 f"""
                 <div style="text-align: center;">
