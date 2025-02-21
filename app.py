@@ -1,8 +1,6 @@
 import streamlit as st
 import joblib
 import pandas as pd
-import xgboost as xgb  # ✅ Ensure XGBoost is imported
-import numpy as np
 
 st.set_page_config(page_title="Sentiment Analysis", page_icon="💬", layout="wide")
 
@@ -13,7 +11,6 @@ def load_models():
         return {
             "Logistic Regression": joblib.load("logistic_regression_model.pkl"),
             "Random Forest": joblib.load("random_forest_model.pkl"),
-            "XGBoost": joblib.load("xgboost_model.pkl"),  # ✅ Load XGBoost from .pkl
         }
     except Exception as e:
         st.error(f"⚠️ Error loading models: {e}")
@@ -55,7 +52,7 @@ st.sidebar.markdown(
     **Analyze Customer Feedback with AI**
     
     - 📝 Paste a customer review
-    - 🔥 Select a Model: Logistic Regression, Random Forest, or XGBoost
+    - 🔥 Select a Model: Logistic Regression or Random Forest
     - 🚀 Click 'Analyze Sentiment'
     - 🎯 Get Instant Sentiment Predictions!
     
@@ -64,7 +61,7 @@ st.sidebar.markdown(
     unsafe_allow_html=True,
 )
 
-# ✅ Model Selection Dropdown
+# ✅ Model Selection Dropdown (No XGBoost)
 selected_model = st.sidebar.selectbox("🔍 Choose a Model", list(models.keys()))
 
 # ✅ Example Reviews
@@ -95,19 +92,10 @@ if st.button("🚀 Analyze Sentiment"):
         model = models[selected_model]
 
         try:
-            if selected_model == "XGBoost":
-                # ✅ Convert Sparse Matrix to Dense for XGBoost
-                input_vector = input_vector.toarray()
-
-                # ✅ XGBoost Model Uses `predict()`
-                prediction_prob = model.predict_proba(input_vector)[0]  # Get probability scores
-                prediction = model.predict(input_vector)[0]
-                confidence = max(prediction_prob) * 100  # Convert to percentage
-            else:
-                # ✅ Traditional ML Models
-                prediction_prob = model.predict_proba(input_vector)[0]  # Get probability scores
-                prediction = model.predict(input_vector)[0]
-                confidence = max(prediction_prob) * 100  # Convert to percentage
+            # ✅ Logistic Regression & Random Forest Work Normally
+            prediction_prob = model.predict_proba(input_vector)[0]  # Get probability scores
+            prediction = model.predict(input_vector)[0]
+            confidence = max(prediction_prob) * 100  # Convert to percentage
 
             # ✅ Display Result
             sentiment = "😊 Positive" if prediction == 1 else "😡 Negative"
