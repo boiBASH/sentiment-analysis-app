@@ -4,7 +4,7 @@ import pandas as pd
 
 st.set_page_config(page_title="Sentiment Analysis", page_icon="💬", layout="wide")
 
-# ✅ Load Models and Vectorizer
+#Load Models and Vectorizer
 @st.cache_resource
 def load_models():
     try:
@@ -27,12 +27,12 @@ def load_vectorizer():
 models = load_models()
 vectorizer = load_vectorizer()
 
-# ✅ Check if models and vectorizer are loaded properly
+#Check if models and vectorizer are loaded properly
 if not models or vectorizer is None:
     st.error("❌ Unable to load models or vectorizer. Please check file paths.")
     st.stop()
 
-# ✅ Header with Centered Title
+#Header with Centered Title
 st.markdown(
     """
     <div style="text-align: center;">
@@ -43,7 +43,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# ✅ Sidebar: Model Selection and App Info
+#Sidebar: Model Selection and App Info
 st.sidebar.image("https://cdn-icons-png.flaticon.com/512/3771/3771518.png", width=100)
 st.sidebar.title("📊 Sentiment Analysis App")
 
@@ -61,10 +61,10 @@ st.sidebar.markdown(
     unsafe_allow_html=True,
 )
 
-# ✅ Model Selection Dropdown (No XGBoost)
+#Model Selection Dropdown (No XGBoost)
 selected_model = st.sidebar.selectbox("🔍 Choose a Model", list(models.keys()))
 
-# ✅ Example Reviews
+#Example Reviews
 example_reviews = [
     "I absolutely love this product! It's amazing. 😊",
     "Terrible experience. Waste of money! 😡",
@@ -75,14 +75,14 @@ example_reviews = [
 
 selected_example = st.sidebar.selectbox("🔍 Try an Example Review", ["Type your own..."] + example_reviews)
 
-# ✅ User Input Section
+#User Input Section
 st.markdown("<h3 style='color:#FFA500;'>✍️ Enter a Customer Review:</h3>", unsafe_allow_html=True)
 if selected_example != "Type your own...":
     user_input = st.text_area("", selected_example, height=120)
 else:
     user_input = st.text_area("", "", height=120)
 
-# ✅ Sentiment Analysis Button
+# Sentiment Analysis Button
 if st.button("🚀 Analyze Sentiment"):
     if user_input.strip():
         # Vectorize Input Text
@@ -92,12 +92,12 @@ if st.button("🚀 Analyze Sentiment"):
         model = models[selected_model]
 
         try:
-            # ✅ Logistic Regression & Random Forest Work Normally
+            # Logistic Regression & Random Forest
             prediction_prob = model.predict_proba(input_vector)[0]  # Get probability scores
             prediction = model.predict(input_vector)[0]
             confidence = max(prediction_prob) * 100  # Convert to percentage
 
-            # ✅ Display Result
+            # Display Result
             sentiment = "😊 Positive" if prediction == 1 else "😡 Negative"
 
             st.markdown(
@@ -118,7 +118,7 @@ if st.button("🚀 Analyze Sentiment"):
     else:
         st.warning("⚠️ Please enter a review before analyzing!")
 
-# ✅ Footer
+#Footer
 st.markdown(
     """
     <hr>
