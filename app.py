@@ -1,7 +1,8 @@
 import streamlit as st
 import joblib
 import pandas as pd
-import xgboost as xgb  # ✅ Import XGBoost for DMatrix conversion
+import xgboost as xgb  # ✅ Ensure XGBoost is imported
+import numpy as np
 
 st.set_page_config(page_title="Sentiment Analysis", page_icon="💬", layout="wide")
 
@@ -12,7 +13,7 @@ def load_models():
         return {
             "Logistic Regression": joblib.load("logistic_regression_model.pkl"),
             "Random Forest": joblib.load("random_forest_model.pkl"),
-            "XGBoost": joblib.load("xgboost_model.pkl"),
+            "XGBoost": joblib.load("xgboost_model.pkl"),  # ✅ Load XGBoost from .pkl
         }
     except Exception as e:
         st.error(f"⚠️ Error loading models: {e}")
@@ -92,31 +93,32 @@ if st.button("🚀 Analyze Sentiment"):
 
         # Load Selected Model and Predict
         model = models[selected_model]
-        
-        try:
-            # ✅ XGBoost Fix: Convert sparse matrix to DMatrix
-            if selected_model == "XGBoost":
-                input_vector = xgb.DMatrix(input_vector)
 
-            # ✅ Check if model supports probability prediction
-            if hasattr(model, "predict_proba"):
+        try:
+            if selected_model == "XGBoost":
+                # ✅ Convert Sparse Matrix to Dense for XGBoost
+                input_vector = input_vector.toarray()
+
+                # ✅ XGBoost Model Uses `predict()`
                 prediction_prob = model.predict_proba(input_vector)[0]  # Get probability scores
+                prediction = model.predict(input_vector)[0]
                 confidence = max(prediction_prob) * 100  # Convert to percentage
             else:
-                confidence = "N/A (No Probability Available)"
-
-            # ✅ Get prediction
-            prediction = model.predict(input_vector)[0]
-            sentiment = "😊 Positive" if prediction == 1 else "😡 Negative"
+                # ✅ Traditional ML Models
+                prediction_prob = model.predict_proba(input_vector)[0]  # Get probability scores
+                prediction = model.predict(input_vector)[0]
+                confidence = max(prediction_prob) * 100  # Convert to percentage
 
             # ✅ Display Result
+            sentiment = "😊 Positive" if prediction == 1 else "😡 Negative"
+
             st.markdown(
                 f"""
                 <div style="text-align: center;">
                     <h2 style="color: {'#28a745' if prediction == 1 else '#dc3545'};">
                         {sentiment}
                     </h2>
-                    <h4>Confidence: {confidence}%</h4>
+                    <h4>Confidence: {confidence:.2f}%</h4>
                     <h5>Model Used: <strong>{selected_model}</strong></h5>
                 </div>
                 """,
