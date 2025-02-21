@@ -1,4 +1,4 @@
-# 📝 Sentiment Analysis using Machine Learning & Transformers
+# 📝 Sentiment Analysis using Traditional Machine Learning Model & Transformers
 
 This project performs **sentiment analysis** on customer feedback using **Machine Learning (ML) models** and a **Transformer-based model (DistilBERT)**. The trained models are deployed using **Streamlit** for easy user interaction.
 
