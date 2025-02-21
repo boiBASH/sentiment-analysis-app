@@ -7,18 +7,31 @@ st.set_page_config(page_title="Sentiment Analysis", page_icon="💬", layout="wi
 # ✅ Load Models and Vectorizer
 @st.cache_resource
 def load_models():
-    return {
-        "Logistic Regression": joblib.load("logistic_regression_model.pkl"),
-        "Random Forest": joblib.load("random_forest_model.pkl"),
-        "XGBoost": joblib.load("xgboost_model.pkl"),
-    }
+    try:
+        return {
+            "Logistic Regression": joblib.load("logistic_regression_model.pkl"),
+            "Random Forest": joblib.load("random_forest_model.pkl"),
+            "XGBoost": joblib.load("xgboost_model.pkl"),
+        }
+    except Exception as e:
+        st.error(f"⚠️ Error loading models: {e}")
+        return {}
 
 @st.cache_resource
 def load_vectorizer():
-    return joblib.load("tfidf_vectorizer.pkl")
+    try:
+        return joblib.load("tfidf_vectorizer.pkl")
+    except Exception as e:
+        st.error(f"⚠️ Error loading vectorizer: {e}")
+        return None
 
 models = load_models()
 vectorizer = load_vectorizer()
+
+# ✅ Check if models and vectorizer are loaded properly
+if not models or vectorizer is None:
+    st.error("❌ Unable to load models or vectorizer. Please check file paths.")
+    st.stop()  # Stop execution if models are not loaded
 
 # ✅ Header with Centered Title
 st.markdown(
@@ -78,25 +91,34 @@ if st.button("🚀 Analyze Sentiment"):
 
         # Load Selected Model and Predict
         model = models[selected_model]
-        prediction_prob = model.predict_proba(input_vector)[0]  # Get probability scores
-        prediction = model.predict(input_vector)[0]
+        
+        try:
+            # Check if model supports probability prediction
+            if hasattr(model, "predict_proba"):
+                prediction_prob = model.predict_proba(input_vector)[0]  # Get probability scores
+                confidence = max(prediction_prob) * 100  # Convert to percentage
+            else:
+                confidence = "N/A (No Probability Available)"
 
-        # Display Result
-        sentiment = "😊 Positive" if prediction == 1 else "😡 Negative"
-        confidence = max(prediction_prob) * 100  # Convert to percentage
+            # Get prediction
+            prediction = model.predict(input_vector)[0]
+            sentiment = "😊 Positive" if prediction == 1 else "😡 Negative"
 
-        st.markdown(
-            f"""
-            <div style="text-align: center;">
-                <h2 style="color: {'#28a745' if prediction == 1 else '#dc3545'};">
-                    {sentiment}
-                </h2>
-                <h4>Confidence: {confidence:.2f}%</h4>
-                <h5>Model Used: <strong>{selected_model}</strong></h5>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
+            # Display Result
+            st.markdown(
+                f"""
+                <div style="text-align: center;">
+                    <h2 style="color: {'#28a745' if prediction == 1 else '#dc3545'};">
+                        {sentiment}
+                    </h2>
+                    <h4>Confidence: {confidence}%</h4>
+                    <h5>Model Used: <strong>{selected_model}</strong></h5>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+        except Exception as e:
+            st.error(f"❌ Model Prediction Error: {e}")
 
     else:
         st.warning("⚠️ Please enter a review before analyzing!")
